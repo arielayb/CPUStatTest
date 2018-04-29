@@ -67,10 +67,6 @@ void cpuStatTest::parseStatus(std::vector<AmsteMsg*>& parsedPayload)
     std::cout << "Total RAM: " << freePhysMem << std::endl;
 	parsedPayload.push_back(new AmsteMsg("RAMFREE", std::to_string(freePhysMem));
 	
-	
-    //A.A: Recursion in the works
-    //parsePayload(payload, payload_len, parsedPayload);
-    
     //A.A: Linux implementation...
 #else
     
