@@ -38,33 +38,33 @@ void cpuStatTest::parseStatus(std::vector<AmsteMsg*>& parsedPayload)
 	
 	PdhOpenQuery(NULL, NULL, &cpuQuery);
 	PdhAddEnglishCounter(cpuQuery, _T("\\Processor(_Total)\\% Processor Time"), NULL, &cpuTotal);
-    PdhCollectQueryData(cpuQuery);
+    	PdhCollectQueryData(cpuQuery);
 	
 	PDH_FMT_COUNTERVALUE counterVal;
 
-    PdhCollectQueryData(cpuQuery);
-    PdhGetFormattedCounterValue(cpuTotal, PDH_FMT_DOUBLE, NULL, &counterVal);
+    	PdhCollectQueryData(cpuQuery);
+    	PdhGetFormattedCounterValue(cpuTotal, PDH_FMT_DOUBLE, NULL, &counterVal);
 	std::cout << "CPU usage: " << counterVal.doubleValue << std::endl;
 	parsedPayload.push_back(new AmsteMsg("CPU", std::to_string(counterVal.doubleValue));
 	
-    //A.A: Fetch the memory info status from the Windows OS.
-    MEMORYSTATUSEX memInfo;
+    	//A.A: Fetch the memory info status from the Windows OS.
+    	MEMORYSTATUSEX memInfo;
 	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
 	GlobalMemoryStatusEx(&memInfo);
 	
 	//A.A: Get Total RAM
 	DWORDLONG totalPhysMem = memInfo.ullTotalPhys;
-    std::cout << "Total RAM: " << totalPhysMem << std::endl;
+    	std::cout << "Total RAM: " << totalPhysMem << std::endl;
 	parsedPayload.push_back(new AmsteMsg("RAMTOTAL", std::to_string(totalPhysMem));
 							
-    //A.A: Get the used amount of RAM
+    	//A.A: Get the used amount of RAM
  	DWORDLONG physMemUsed = memInfo.ullTotalPhys - memInfo.ullAvailPhys;
-    std::cout << "Available RAM: " << physMemUsed << std::endl;
+    	std::cout << "Available RAM: " << physMemUsed << std::endl;
 	parsedPayload.push_back(new AmsteMsg("RAMUSED", std::to_string(physMemUsed));
 							
 	//A.A: Free amount of RAM available (to be continued)
    	DWORDLONG freePhysMem = memInfo.ullAvailPhys;
-    std::cout << "Total RAM: " << freePhysMem << std::endl;
+    	std::cout << "Total RAM: " << freePhysMem << std::endl;
 	parsedPayload.push_back(new AmsteMsg("RAMFREE", std::to_string(freePhysMem));
 	
     //A.A: Linux implementation...
@@ -78,8 +78,8 @@ void cpuStatTest::parseStatus(std::vector<AmsteMsg*>& parsedPayload)
     cpuUseFile.open("/proc/loadavg");
     memInfoFile.open("/proc/meminfo");
     
-	//A.A: temp vector to store pieces of string data from the file
-	std::vector<std::string> tempData;
+    //A.A: temp vector to store pieces of string data from the file
+    std::vector<std::string> tempData;
 	
     //A.A:I need to store these calculated values in KV.
     if((cpuUseFile.good() && memInfoFile.good()))
@@ -91,7 +91,7 @@ void cpuStatTest::parseStatus(std::vector<AmsteMsg*>& parsedPayload)
         const char * payloadMsg = cpuUsageOutput.c_str();
         
         parsedPayload.push_back(new AmsteMsg("CPU", payloadMsg));
-		cpuUseFile.close();
+	cpuUseFile.close();
 		
 		//A.A: the struct will obtain needed system information using sys/sysinfo.h
 //		struct sysinfo memInfo;
@@ -137,6 +137,7 @@ void cpuStatTest::parseStatus(std::vector<AmsteMsg*>& parsedPayload)
         std::string memMB;
         int totalMemCalculation = 0;
         std::stringstream ss(tempData[0]);
+    	
         if(std::getline(ss, memMB, ':'))
         {
             ss >> memMB;
@@ -149,8 +150,9 @@ void cpuStatTest::parseStatus(std::vector<AmsteMsg*>& parsedPayload)
                
         int freeMem = 0;
         std::string memFreeMB;
-		int freeMemCalculation = 0;
+	int freeMemCalculation = 0;
         std::stringstream streamFree(tempData[1]);
+    	
         if(std::getline(streamFree, memFreeMB, ':'))
         {
             streamFree >> memFreeMB;
@@ -161,11 +163,12 @@ void cpuStatTest::parseStatus(std::vector<AmsteMsg*>& parsedPayload)
 			parsedPayload.push_back(new AmsteMsg("RAMFREE", freeRAM));
         }
         
-		//A.A: need to fetch the cache memory to calculate the RAM usage
-		int cacheMem = 0;
+	//A.A: need to fetch the cache memory to calculate the RAM usage
+	int cacheMem = 0;
         std::string memCacheMB;
-		int chacheMemCalculation = 0;
+	int chacheMemCalculation = 0;
         std::stringstream streamCache(tempData[4]);
+	    
         if(std::getline(streamCache, memCacheMB, ':'))
         {
             streamCache >> memCacheMB;
@@ -181,7 +184,7 @@ void cpuStatTest::parseStatus(std::vector<AmsteMsg*>& parsedPayload)
 		std::string usedRAM = std::to_string(usedMemCalculation);
 		parsedPayload.push_back(new AmsteMsg("RAMUSED", usedRAM));	
 
-        memInfoFile.close();
+	 	memInfoFile.close();
 	 	getStatus(parsedPayload);
     }
     else
@@ -210,8 +213,8 @@ int main()
     cpuStatTest parse;
     parse.parseStatus(parsedPayload);
 	
-	std::vector<AmsteMsg*>::iterator iter = parsedPayload.begin();
-	for (iter; iter != parsedPayload.end(); ++iter)
-		if (*iter)
-			delete *iter;
+    std::vector<AmsteMsg*>::iterator iter = parsedPayload.begin();
+    for (iter; iter != parsedPayload.end(); ++iter)
+	if (*iter)
+		delete *iter;
 }
